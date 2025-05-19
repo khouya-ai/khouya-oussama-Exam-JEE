@@ -13,4 +13,6 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
     List<Client> searchCustomer(@Param("kw") String keyword);
 
     List<Client> findClientsByNomContainingIgnoreCase(String keyword);
+
+    List<Client> findByNomContainsOrEmailContains(String nom, String email);
 } 

@@ -15,6 +15,6 @@ public interface ClientService {
 
     List<CreditDTO> getClientCredits(Long clientId);
     Double calculateTotalCredits(Long clientId);
-    boolean isEligibleForCredit(Long clientId, Double montant);
+    boolean isEligibleForCredit(Long clientId);
     List<ClientDTO> searchClients(String keyword);
 } 
