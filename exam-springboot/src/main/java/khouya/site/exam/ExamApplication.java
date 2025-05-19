@@ -23,64 +23,98 @@ public class ExamApplication {
 	}
 
 	@Bean
-	CommandLineRunner start(ClientRepository customerRepository,
-							CreditRepository bankAccountRepository,
-							RemboursementRepository accountOperationRepository) {
+	CommandLineRunner start(ClientRepository clientRepository,
+							CreditRepository creditRepository,
+							RemboursementRepository remboursementRepository) {
 		return args -> {
-			Stream.of("Hassan", "Yassine", "Aicha").forEach(name -> {
-				Client customer = new Client();
-				customer.setNom(name);
-				customer.setEmail(name + "@gmail.com");
-				customerRepository.save(customer);
+			// Création des clients
+			Stream.of(
+				new String[]{"Hassan Alami", "hassan.alami@gmail.com"},
+				new String[]{"Yassine Mansouri", "yassine.mansouri@gmail.com"},
+				new String[]{"Aicha Benani", "aicha.benani@gmail.com"}
+			).forEach(data -> {
+				Client client = new Client();
+				client.setNom(data[0]);
+				client.setEmail(data[1]);
+				clientRepository.save(client);
 			});
 
-			customerRepository.findAll().forEach(customer -> {
-				CreditPersonnel creditPersonnel = new CreditPersonnel();
-				creditPersonnel.setMotif("Credit Personnel");
-				creditPersonnel.setDateAcceptation(new Date());
-				creditPersonnel.setStatut(StatutCredit.ACCEPTE);
-				creditPersonnel.setClient(customer);
-				creditPersonnel.setMontant(9000.00);
-				bankAccountRepository.save(creditPersonnel);
+			clientRepository.findAll().forEach(client -> {
+				// Crédit Personnel (voiture)
+				CreditPersonnel creditVoiture = new CreditPersonnel();
+				creditVoiture.setMotif("Achat voiture neuve");
+				creditVoiture.setDateDemande(new Date());
+				creditVoiture.setDateAcceptation(new Date());
+				creditVoiture.setStatut(StatutCredit.ACCEPTE);
+				creditVoiture.setClient(client);
+				creditVoiture.setMontant(200000.00);
+				creditVoiture.setDureeRemboursement(60);
+				creditVoiture.setTauxInteret(4.5); 
+				creditRepository.save(creditVoiture);
 
-				CreditImmobilier creditImmobilier = new CreditImmobilier();
-				creditImmobilier.setTypeBien(TypeBien.APPARTEMENT);
-				creditImmobilier.setDateAcceptation(new Date());
-				creditImmobilier.setStatut(StatutCredit.ACCEPTE);
-				creditImmobilier.setClient(customer);
-				creditImmobilier.setMontant(20000.00);
-				bankAccountRepository.save(creditImmobilier);
+				// Crédit Immobilier (appartement)
+				CreditImmobilier creditAppartement = new CreditImmobilier();
+				creditAppartement.setTypeBien(TypeBien.APPARTEMENT);
+				creditAppartement.setDateDemande(new Date());
+				creditAppartement.setDateAcceptation(new Date());
+				creditAppartement.setStatut(StatutCredit.ACCEPTE);
+				creditAppartement.setClient(client);
+				creditAppartement.setMontant(900000.00);
+				creditAppartement.setDureeRemboursement(240);
+				creditAppartement.setTauxInteret(3.75);
+				creditRepository.save(creditAppartement);
 
-				CreditProfessionnel creditProfessionnel = new CreditProfessionnel();
-				creditProfessionnel.setMotif("creditProfessionnel");
-				creditProfessionnel.setRaisonSociale("RaisonSociale");
-				creditProfessionnel.setDateAcceptation(new Date());
-				creditProfessionnel.setStatut(StatutCredit.ACCEPTE);
-				creditProfessionnel.setClient(customer);
-				creditProfessionnel.setMontant(80000.00);
-				bankAccountRepository.save(creditProfessionnel);
+				// Crédit Professionnel (projet)
+				CreditProfessionnel creditProjet = new CreditProfessionnel();
+				creditProjet.setMotif("Achat équipement industriel");
+				creditProjet.setRaisonSociale(client.getNom() + " & Co SARL");
+				creditProjet.setDateDemande(new Date());
+				creditProjet.setDateAcceptation(new Date());
+				creditProjet.setStatut(StatutCredit.ACCEPTE);
+				creditProjet.setClient(client);
+				creditProjet.setMontant(500000.00);
+				creditProjet.setDureeRemboursement(84);
+				creditProjet.setTauxInteret(5.25);
+				creditRepository.save(creditProjet);
+
+				// Crédit en cours d'étude
+				CreditPersonnel creditEnCours = new CreditPersonnel();
+				creditEnCours.setMotif("Financement études supérieures");
+				creditEnCours.setDateDemande(new Date());
+				creditEnCours.setStatut(StatutCredit.EN_COURS);
+				creditEnCours.setClient(client);
+				creditEnCours.setMontant(150000.00);
+				creditEnCours.setDureeRemboursement(36);
+				creditEnCours.setTauxInteret(4.0);
+				creditRepository.save(creditEnCours);
 			});
 
-			bankAccountRepository.findAll().forEach(acc -> {
+			// Création des remboursements pour chaque crédit accepté
+			creditRepository.findByStatut(StatutCredit.ACCEPTE).forEach(credit -> {
+				// Calcul de la mensualité (simplifiée)
+				double tauxMensuel = credit.getTauxInteret() / 12 / 100;
+				double mensualite = credit.getMontant() * tauxMensuel / 
+					(1 - Math.pow(1 + tauxMensuel, -credit.getDureeRemboursement()));
+
+				// Création de 5 remboursements
 				for (int i = 0; i < 5; i++) {
-					Remboursement accountOperation = new Remboursement();
-					accountOperation.setDate(new Date());
-					accountOperation.setMontant(Math.random() * 12000);
-					accountOperation.setType(Math.random() > 0.5 ? TypeRemboursement.MENSUALITE : TypeRemboursement.REMBOURSEMENT_ANTICIPE);
-					accountOperation.setCredit(acc);
-					accountOperationRepository.save(accountOperation);
+					Remboursement remboursement = new Remboursement();
+					remboursement.setDate(new Date());
+					remboursement.setMontant(mensualite);
+					// Les 4 premiers sont des mensualités, le dernier est un remboursement anticipé
+					remboursement.setType(i < 4 ? TypeRemboursement.MENSUALITE : TypeRemboursement.REMBOURSEMENT_ANTICIPE);
+					remboursement.setCredit(credit);
+					remboursementRepository.save(remboursement);
 				}
 			});
 
-			Credit ba = bankAccountRepository.findAll().getFirst();
+			// Affichage des informations pour vérification
 			System.out.println("***************************************");
-			System.out.println("Bank Account ID: " + ba.getId());
-			System.out.println("Bank Account Balance: " + ba.getMontant());
-			System.out.println("Bank Account Created At: " + ba.getDateAcceptation());
-			System.out.println("Bank Account Status: " + ba.getStatut());
-			System.out.println("Bank Account Customer: " + ba.getClient().getNom());
-
-
+			System.out.println("Données initiales créées avec succès :");
+			System.out.println("- Nombre de clients : " + clientRepository.count());
+			System.out.println("- Nombre de crédits : " + creditRepository.count());
+			System.out.println("- Nombre de remboursements : " + remboursementRepository.count());
+			System.out.println("***************************************");
 		};
 	}
 }
