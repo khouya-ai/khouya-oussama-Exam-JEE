@@ -2,17 +2,62 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export enum StatutCredit {
+  EN_COURS = 'EN_COURS',
+  ACCEPTE = 'ACCEPTE',
+  REJETE = 'REJETE'
+}
+
+export enum TypeRemboursement {
+  MENSUALITE = 'MENSUALITE',
+  REMBOURSEMENT_ANTICIPE = 'REMBOURSEMENT_ANTICIPE'
+}
+
+export enum TypeBien {
+  APPARTEMENT = 'APPARTEMENT',
+  MAISON = 'MAISON',
+  TERRAIN = 'TERRAIN'
+}
+
 export interface ClientDTO {
   id?: number;
-  name?: string;
+  nom?: string;
   email?: string;
-  // Add other client properties as needed
+  credits?: CreditDTO[];
+}
+
+export interface RemboursementDTO {
+  id?: number;
+  date?: Date;
+  montant?: number;
+  type?: TypeRemboursement;
+  creditId?: number;
 }
 
 export interface CreditDTO {
   id?: number;
-  amount?: number;
-  // Add other credit properties as needed
+  dateDemande?: Date;
+  statut?: StatutCredit;
+  dateAcceptation?: Date;
+  montant?: number;
+  dureeRemboursement?: number;
+  tauxInteret?: number;
+  clientId?: number;
+  remboursements?: RemboursementDTO[];
+  type?: string;
+}
+
+export interface CreditPersonnelDTO extends CreditDTO {
+  motif?: string;
+}
+
+export interface CreditImmobilierDTO extends CreditDTO {
+  typeBien?: TypeBien;
+}
+
+export interface CreditProfessionnelDTO extends CreditDTO {
+  motif?: string;
+  raisonSociale?: string;
 }
 
 @Injectable({

@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, RouterLinkActive],
   template: `
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">Gestion des Credits</a>
+        <a class="navbar-brand" href="#">Gestion des Crédits</a>
         <div class="collapse navbar-collapse">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
@@ -19,7 +19,12 @@ import { RouterLink } from '@angular/router';
       </div>
     </nav>
   `,
-  styles: []
+  styles: [`
+    .active {
+      font-weight: bold;
+      color: #0d6efd !important;
+    }
+  `]
 })
 export class NavbarComponent {
 }

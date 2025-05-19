@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ClientService, ClientDTO } from '../services/client.service';
 
 @Component({
@@ -16,7 +17,7 @@ import { ClientService, ClientDTO } from '../services/client.service';
           <form (ngSubmit)="handleAddClient()" class="mb-4">
             <div class="row">
               <div class="col-md-4">
-                <input type="text" class="form-control" [(ngModel)]="newClient.name" name="name" placeholder="Nom">
+                <input type="text" class="form-control" [(ngModel)]="newClient.nom" name="nom" placeholder="Nom">
               </div>
               <div class="col-md-4">
                 <input type="email" class="form-control" [(ngModel)]="newClient.email" name="email" placeholder="Email">
@@ -50,11 +51,14 @@ import { ClientService, ClientDTO } from '../services/client.service';
             <tbody>
               <tr *ngFor="let client of clients">
                 <td>{{client.id}}</td>
-                <td>{{client.name}}</td>
+                <td>{{client.nom}}</td>
                 <td>{{client.email}}</td>
                 <td>
-                  <button class="btn btn-danger btn-sm" (click)="handleDeleteClient(client.id!)">
+                  <button class="btn btn-danger btn-sm me-2" (click)="handleDeleteClient(client.id!)">
                     Supprimer
+                  </button>
+                  <button class="btn btn-info btn-sm" (click)="handleViewCredits(client.id!)">
+                    Crédits
                   </button>
                 </td>
               </tr>
@@ -71,7 +75,10 @@ export class CustomersComponent implements OnInit {
   newClient: ClientDTO = {};
   searchKeyword: string = '';
 
-  constructor(private clientService: ClientService) {}
+  constructor(
+    private clientService: ClientService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadClients();
@@ -90,7 +97,7 @@ export class CustomersComponent implements OnInit {
   }
 
   handleAddClient(): void {
-    if (!this.newClient.name || !this.newClient.email) {
+    if (!this.newClient.nom || !this.newClient.email) {
       alert('Veuillez remplir tous les champs');
       return;
     }
@@ -134,5 +141,9 @@ export class CustomersComponent implements OnInit {
     } else {
       this.loadClients();
     }
+  }
+
+  handleViewCredits(clientId: number): void {
+    this.router.navigate(['/credit', clientId]);
   }
 }

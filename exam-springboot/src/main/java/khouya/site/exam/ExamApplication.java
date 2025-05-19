@@ -49,7 +49,7 @@ public class ExamApplication {
 				creditVoiture.setClient(client);
 				creditVoiture.setMontant(200000.00);
 				creditVoiture.setDureeRemboursement(60);
-				creditVoiture.setTauxInteret(4.5); 
+				creditVoiture.setTauxInteret(4.5);
 				creditRepository.save(creditVoiture);
 
 				// Crédit Immobilier (appartement)
@@ -91,7 +91,6 @@ public class ExamApplication {
 
 			// Création des remboursements pour chaque crédit accepté
 			creditRepository.findByStatut(StatutCredit.ACCEPTE).forEach(credit -> {
-				// Calcul de la mensualité (simplifiée)
 				double tauxMensuel = credit.getTauxInteret() / 12 / 100;
 				double mensualite = credit.getMontant() * tauxMensuel / 
 					(1 - Math.pow(1 + tauxMensuel, -credit.getDureeRemboursement()));
@@ -101,7 +100,6 @@ public class ExamApplication {
 					Remboursement remboursement = new Remboursement();
 					remboursement.setDate(new Date());
 					remboursement.setMontant(mensualite);
-					// Les 4 premiers sont des mensualités, le dernier est un remboursement anticipé
 					remboursement.setType(i < 4 ? TypeRemboursement.MENSUALITE : TypeRemboursement.REMBOURSEMENT_ANTICIPE);
 					remboursement.setCredit(credit);
 					remboursementRepository.save(remboursement);
